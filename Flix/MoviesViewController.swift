@@ -10,7 +10,7 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
     
     // ----- global variables -----------
@@ -19,21 +19,9 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     
     var movies: [NSDictionary]?
     var endpoint: String!
-    var filteredData: [NSDictionary]!
+    var filteredData: [NSDictionary]?
     
-    //let totalColors: Int = 100
-    
-    // ---- Collection View Function ------
-   /* func colorForIndexPath(indexPath: NSIndexPath) -> UIColor {
-        if indexPath.row >= totalColors {
-            return UIColor.blackColor()	// return black if we get an unexpected row index
-        }
-        
-        let hueValue: CGFloat = CGFloat(indexPath.row) / CGFloat(totalColors)
-        return UIColor(hue: hueValue, saturation: 1.0, brightness: 1.0, alpha: 1.0)
-        }*/
-    
-    
+
     // --- viewDidLoad function ------------
 override func viewDidLoad() {
     
@@ -47,6 +35,7 @@ override func viewDidLoad() {
     
     tableView.dataSource = self
     tableView.delegate = self
+    searchBar.delegate = self
     
     let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
     let url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
@@ -68,6 +57,7 @@ override func viewDidLoad() {
                                                 print("response: \(responseDictionary)")
                                                 
                             self.movies = responseDictionary["results"] as? [NSDictionary]
+                            self.filteredData = self.movies
                             self.tableView.reloadData()
                                                                         }
                                                                 }
@@ -113,8 +103,8 @@ override func viewDidLoad() {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         
-        if let movies = movies{
-         return movies.count
+        if let filteredData = filteredData{
+         return filteredData.count
         } else {
          return 0
         }
@@ -127,7 +117,7 @@ override func viewDidLoad() {
         
         let cell = tableView.dequeueReusableCellWithIdentifier("MovieCell", forIndexPath: indexPath) as! MovieCell
         
-        let movie = movies![indexPath.row]
+        let movie = filteredData![indexPath.row]
         let title = movie["title"] as! String
         let overview = movie["overview"] as! String
         
@@ -163,8 +153,6 @@ override func viewDidLoad() {
     // --------------- Search Bar Method ---------------------------------
     // This method updates filteredData based on the text in the Search Box
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        
         
         if searchText.isEmpty {
             filteredData = movies
