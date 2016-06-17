@@ -1,2 +1,0 @@
-# flix
-movie app
